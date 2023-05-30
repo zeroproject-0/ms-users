@@ -54,7 +54,7 @@ router.put('/users/:id', async (req, res) => {
 	if (user === null)
 		return res.status(404).json({ message: 'Usuario no encontrado' });
 
-	res.json({ message: 'Usuario eliminado', data: user });
+	res.json({ message: 'Usuario modificado', data: user });
 });
 
 router.post('/users', async (req, res) => {});

@@ -9,7 +9,7 @@ import authRoutes from './routes/auth.routes';
 
 const app = express();
 
-app.set('port', 3000 || process.env.port);
+app.set('port', Number(process.env.PORT));
 
 app.use(express.json());
 app.use(morgan('dev'));
