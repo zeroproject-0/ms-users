@@ -4,7 +4,7 @@ declare global {
 			DATABASE_URL: string;
 			TOKEN_SECRET: string;
 			PORT: string;
-			ENVIRONMENT: 'dev' | 'prod' | 'debug';
+			ENV: 'dev' | 'prod' | 'debug';
 		}
 	}
 }

@@ -1,62 +1,23 @@
 import { Router } from 'express';
-import { genSalt, hash } from 'bcryptjs';
 
-import { Prisma } from '../db';
+import {
+	createUser,
+	deleteUser,
+	getAllUsers,
+	getUser,
+	updateUser,
+} from '../controllers/users.controller';
 
 const router = Router();
 
-router.get('/users', async (req, res) => {
-	const users = await Prisma.user.findMany();
-	res.json(users);
-});
+router.get('/users', getAllUsers);
 
-router.get('/users/:id', async (req, res) => {
-	const user = await Prisma.user.findUnique({
-		where: {
-			id: Number(req.params.id),
-		},
-	});
+router.get('/users/:id', getUser);
 
-	if (user === null)
-		return res.status(404).json({ message: 'Usuario no encontrado' });
+router.delete('/users/:id', deleteUser);
 
-	res.json(user);
-});
+router.put('/users/:id', updateUser);
 
-router.delete('/users/:id', async (req, res) => {
-	const id = Number(req.params.id);
-
-	const user = await Prisma.user.update({
-		where: {
-			id: id,
-		},
-		data: {
-			state: false,
-		},
-	});
-
-	if (user === null)
-		return res.status(404).json({ message: 'Usuario no encontrado' });
-
-	res.json({ message: 'Usuario eliminado', data: user });
-});
-
-router.put('/users/:id', async (req, res) => {
-	const id = Number(req.params.id);
-
-	const user = await Prisma.user.update({
-		where: {
-			id: id,
-		},
-		data: req.body,
-	});
-
-	if (user === null)
-		return res.status(404).json({ message: 'Usuario no encontrado' });
-
-	res.json({ message: 'Usuario modificado', data: user });
-});
-
-router.post('/users', async (req, res) => {});
+router.post('/users', createUser);
 
 export default router;
