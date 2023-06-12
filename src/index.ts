@@ -17,7 +17,10 @@ app.set('port', Number(PORT || 3000));
 
 app.use(
 	cors({
-		origin: ENV === 'dev' ? 'http://localhost:5173' : 'https://zeroproject.dev',
+		origin:
+			ENV === 'dev'
+				? ['http://localhost:5173', 'http://localhost:5000']
+				: 'https://zeroproject.dev',
 		credentials: true,
 	})
 );

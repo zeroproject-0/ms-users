@@ -46,6 +46,7 @@ export const login = async (req: Request, res: Response) => {
 
 export const logout = async (req: Request, res: Response) => {
 	return res
+		.status(200)
 		.cookie('token', '', { expires: new Date(0) })
 		.header('auth-token', '')
 		.json({ message: 'Sesión cerrada' });
@@ -54,6 +55,7 @@ export const logout = async (req: Request, res: Response) => {
 export const validateToken = async (req: Request, res: Response) => {
 	const token =
 		req.body.token ?? req.headers['auth-token'] ?? req.cookies.token;
+	console.log(token);
 
 	if (!token) return res.status(401).json({ message: 'Acceso denegado' });
 
