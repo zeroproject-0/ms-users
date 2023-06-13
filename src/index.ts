@@ -19,7 +19,11 @@ app.use(
 	cors({
 		origin:
 			ENV === 'dev'
-				? ['http://localhost:5173', 'http://localhost:5000']
+				? [
+						'http://localhost:5173',
+						'http://localhost:5000',
+						'http://localhost:4173',
+				  ]
 				: 'https://zeroproject.dev',
 		credentials: true,
 	})

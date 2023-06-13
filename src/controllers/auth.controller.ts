@@ -55,7 +55,6 @@ export const logout = async (req: Request, res: Response) => {
 export const validateToken = async (req: Request, res: Response) => {
 	const token =
 		req.body.token ?? req.headers['auth-token'] ?? req.cookies.token;
-	console.log(token);
 
 	if (!token) return res.status(401).json({ message: 'Acceso denegado' });
 
