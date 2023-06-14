@@ -1,47 +1,47 @@
 import { Request, Response } from 'express';
 import jwt from 'jsonwebtoken';
 
-import { Prisma } from '../db';
+// import { Prisma } from '../db';
 import { validateJson, verifyPassword } from '../libs/validate';
+import { User } from '../models/User.model';
 
 export const login = async (req: Request, res: Response) => {
 	if (!validateJson(req.body, ['email', 'password']))
 		return res.status(400).json({ message: 'Campos incompletos' });
 
-	const user = await Prisma.user.findUnique({
-		where: {
-			email: req.body.email,
-		},
-	});
+	try {
+		const user = await User.findOne({ email: req.body.email }).exec();
+		if (user === null)
+			return res.status(404).json({ message: 'Usuario no encontrado' });
 
-	if (user === null)
-		return res.status(404).json({ message: 'Usuario no encontrado' });
+		const { password, ...userToSend } = user;
+		const isCorrectPassword = await verifyPassword(
+			req.body.password,
+			user.password
+		);
 
-	const { password, ...userToSend } = user;
+		if (!isCorrectPassword)
+			return res.status(401).json({ message: 'Contraseña incorrecta' });
 
-	const isCorrectPassword = await verifyPassword(
-		req.body.password,
-		user.password
-	);
+		const token: string = jwt.sign(
+			{ _id: user.id },
+			process.env.TOKEN_SECRET || 'token',
+			{
+				expiresIn: 60 * 60 * 24,
+			}
+		);
 
-	if (!isCorrectPassword)
-		return res.status(401).json({ message: 'Contraseña incorrecta' });
-
-	const token: string = jwt.sign(
-		{ _id: user.id },
-		process.env.TOKEN_SECRET || 'token',
-		{
-			expiresIn: 60 * 60 * 24,
-		}
-	);
-
-	res
-		.cookie('token', token)
-		.setHeader('auth-token', token)
-		.json({
-			message: 'Inicio de sesión correcto',
-			data: { user: userToSend, token },
-		});
+		res
+			.cookie('token', token)
+			.setHeader('auth-token', token)
+			.json({
+				message: 'Inicio de sesión correcto',
+				data: { user: userToSend, token },
+			});
+	} catch (error) {
+		console.log(error);
+		res.status(500).json({ message: 'Error al iniciar sesión' });
+	}
 };
 
 export const logout = async (req: Request, res: Response) => {
@@ -64,13 +64,12 @@ export const validateToken = async (req: Request, res: Response) => {
 			process.env.TOKEN_SECRET || 'token'
 		) as jwt.JwtPayload;
 
+		const user = await User.findById(payload._id).exec();
+		const { password, ...userToSend } = user!.toObject();
+
 		res.json({
 			message: 'Token valido',
-			data: await Prisma.user.findUnique({
-				where: {
-					id: payload._id,
-				},
-			}),
+			data: userToSend,
 		});
 	} catch (error) {
 		res.status(400).json({ message: 'Token invalido' });

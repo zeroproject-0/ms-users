@@ -1,59 +1,64 @@
 import { Request, Response } from 'express';
 import jwt from 'jsonwebtoken';
 
-import { Prisma } from '../db';
+// import { Prisma } from '../db';
 import { encryptPassword, validateJson } from '../libs/validate';
+import { User } from '../models/User.model';
 
 export const getAllUsers = async (req: Request, res: Response) => {
-	const users = await Prisma.user.findMany();
-	res.json(users);
+	try {
+		const users = await User.find({}).populate('Users').exec();
+		return res.status(200).json({ message: 'Usuarios obtenidos', data: users });
+	} catch (error) {
+		console.log(error);
+		return res.status(500).json({ message: 'Error al obtener los usuarios' });
+	}
 };
 
 export const getUser = async (req: Request, res: Response) => {
-	const user = await Prisma.user.findUnique({
-		where: {
-			id: Number(req.params.id),
-		},
-	});
+	try {
+		const user = await User.findById(req.params.id).populate('Users').exec();
+		if (!user)
+			return res.status(404).json({ message: 'Usuario no encontrado' });
 
-	if (user === null)
-		return res.status(404).json({ message: 'Usuario no encontrado' });
-
-	res.json(user);
+		return res.status(200).json({ message: 'Usuario obtenido', data: user });
+	} catch (error) {
+		console.log(error);
+		return res.status(500).json({ message: 'Error al obtener el usuario' });
+	}
 };
 
 export const deleteUser = async (req: Request, res: Response) => {
-	const id = Number(req.params.id);
+	const id = req.params.id;
 
-	const user = await Prisma.user.update({
-		where: {
-			id: id,
-		},
-		data: {
-			state: false,
-		},
-	});
+	try {
+		const user = await User.findOneAndUpdate(
+			{ _id: id },
+			{ state: false }
+		).exec();
+		if (!user)
+			return res.status(404).json({ message: 'Usuario no encontrado' });
 
-	if (user === null)
-		return res.status(404).json({ message: 'Usuario no encontrado' });
-
-	res.json({ message: 'Usuario eliminado', data: user });
+		res.json({ message: 'Usuario eliminado', data: user });
+	} catch (error) {
+		console.log(error);
+		res.status(500).json({ message: 'Error al eliminar el usuario' });
+	}
 };
 
 export const updateUser = async (req: Request, res: Response) => {
-	const id = Number(req.params.id);
+	const id = req.params.id;
 
-	const user = await Prisma.user.update({
-		where: {
-			id: id,
-		},
-		data: req.body,
-	});
+	try {
+		const user = await User.findOneAndUpdate({ _id: id }, req.body).exec();
+		if (!user)
+			return res.status(404).json({ message: 'Usuario no encontrado' });
 
-	if (user === null)
-		return res.status(404).json({ message: 'Usuario no encontrado' });
-
-	res.json({ message: 'Usuario modificado', data: user });
+		res.json({ message: 'Usuario actualizado', data: user });
+	} catch (error) {
+		console.log(error);
+		res.status(500).json({ message: 'Error al actualizar el usuario' });
+	}
 };
 
 export const createUser = async (req: Request, res: Response) => {
@@ -66,19 +71,24 @@ export const createUser = async (req: Request, res: Response) => {
 
 	user.password = await encryptPassword(user.password);
 
-	const newUser = await Prisma.user.create({
-		data: user,
-	});
+	try {
+		const newUser = await (await User.create(user)).save();
+		if (newUser === null)
+			return res.status(500).json({ message: 'Error al crear el usuario' });
 
-	if (newUser === null)
+		const token: string = jwt.sign(
+			{ _id: newUser.id },
+			process.env.TOKEN_SECRET!,
+			{ expiresIn: 60 * 60 * 24 }
+		);
+
+		res
+			.status(200)
+			.cookie('token', token, { maxAge: 60 * 60 * 24 })
+			.header('auth-token', token)
+			.json({ message: 'Usuario creado', data: newUser });
+	} catch (error) {
+		console.log(error);
 		return res.status(500).json({ message: 'Error al crear el usuario' });
-
-	const token: string = jwt.sign(
-		{ _id: newUser.id },
-		process.env.TOKEN_SECRET || 'token'
-	);
-
-	res
-		.header('auth-token', token)
-		.json({ message: 'Usuario creado', data: newUser });
+	}
 };
