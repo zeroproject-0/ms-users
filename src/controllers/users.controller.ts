@@ -92,3 +92,22 @@ export const createUser = async (req: Request, res: Response) => {
 		return res.status(500).json({ message: 'Error al crear el usuario' });
 	}
 };
+
+export const addContact = async (req: Request, res: Response) => {
+	const id = req.params.id;
+	const { contactID } = req.body;
+
+	try {
+		const user = await User.findById(id).exec();
+		if (!user)
+			return res.status(404).json({ message: 'Usuario no encontrado' });
+
+		user.contacts.push(contactID);
+		await user.save();
+
+		res.json({ message: 'Contacto agregado', data: user });
+	} catch (error) {
+		console.log(error);
+		res.status(500).json({ message: 'Error al agregar el contacto' });
+	}
+};

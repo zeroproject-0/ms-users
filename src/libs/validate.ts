@@ -1,6 +1,7 @@
 import { Request, Response } from 'express';
 import { genSalt, hash, compare } from 'bcryptjs';
 import jwt from 'jsonwebtoken';
+import { User } from '../models/User.model';
 
 export function validateJson(json: any, fields: string[]) {
 	for (const field of fields) {
@@ -37,4 +38,25 @@ export async function encryptPassword(password: string) {
 
 export async function verifyPassword(password: string, hash: string) {
 	return await compare(password, hash);
+}
+
+export async function verifyToken(req: Request) {
+	const token =
+		req.body.token ?? req.headers['auth-token'] ?? req.cookies.token;
+
+	if (!token) return null;
+
+	try {
+		const payload = jwt.verify(
+			token,
+			process.env.TOKEN_SECRET || 'token'
+		) as jwt.JwtPayload;
+
+		const user = await User.findById(payload._id).populate('Contacts').exec();
+		const { password, ...userToSend } = user!.toObject();
+
+		return userToSend;
+	} catch (error) {
+		return null;
+	}
 }
