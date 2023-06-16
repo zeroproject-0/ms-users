@@ -29,7 +29,7 @@ app.use(morgan('dev'));
 app.use(express.json());
 app.use(cookieParser());
 
-app.use('/v1/', usersRoutes);
+app.use('/v1/users', usersRoutes);
 app.use('/v1/auth', authRoutes);
 
 export default app;

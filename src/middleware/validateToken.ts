@@ -14,7 +14,7 @@ export const validateToken = async (req: Request, res: Response) => {
 			process.env.TOKEN_SECRET || 'token'
 		) as jwt.JwtPayload;
 
-		const user = await User.findById(payload._id).populate('Contacts').exec();
+		const user = await User.findById(payload._id).populate('contacts').exec();
 		const { password, ...userToSend } = user!.toObject();
 
 		res.json({

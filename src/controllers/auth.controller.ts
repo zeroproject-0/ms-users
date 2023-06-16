@@ -10,7 +10,9 @@ export const login = async (req: Request, res: Response) => {
 		return res.status(400).json({ message: 'Campos incompletos' });
 
 	try {
-		const user = await User.findOne({ email: req.body.email }).exec();
+		const user = await User.findOne({ email: req.body.email })
+			.populate('contacts')
+			.exec();
 		if (user === null)
 			return res.status(404).json({ message: 'Usuario no encontrado' });
 

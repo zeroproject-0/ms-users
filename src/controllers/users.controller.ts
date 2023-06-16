@@ -7,7 +7,7 @@ import { User } from '../models/User.model';
 
 export const getAllUsers = async (req: Request, res: Response) => {
 	try {
-		const users = await User.find({}).populate('Users').exec();
+		const users = await User.find({}).populate('contacts').exec();
 		return res.status(200).json({ message: 'Usuarios obtenidos', data: users });
 	} catch (error) {
 		console.log(error);
@@ -17,7 +17,7 @@ export const getAllUsers = async (req: Request, res: Response) => {
 
 export const getUser = async (req: Request, res: Response) => {
 	try {
-		const user = await User.findById(req.params.id).populate('Users').exec();
+		const user = await User.findById(req.params.id).populate('contacts').exec();
 		if (!user)
 			return res.status(404).json({ message: 'Usuario no encontrado' });
 

@@ -46,7 +46,7 @@ const UserSchema = new Schema<IUser>(
 		},
 		contacts: [
 			{
-				type: [Types.ObjectId],
+				type: Types.ObjectId,
 				ref: 'User',
 				default: [],
 			},
