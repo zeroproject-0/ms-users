@@ -17,4 +17,4 @@ jobs:
           host: ${{ secrets.HOST }}
           user: ${{ secrets.USERNAME }}
           key: ${{ secrets.KEY }}
-          command: ~/deploy.sh ms-users
+          command: ls -la; cat ~/deply.sh; ~/deploy.sh ms-users
