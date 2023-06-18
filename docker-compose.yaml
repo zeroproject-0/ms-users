@@ -20,4 +20,4 @@ networks:
   nginx_proxy_default:
     external: true
   mongo_default:
-    driver: bridge
+    external: true
