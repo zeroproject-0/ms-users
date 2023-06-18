@@ -1,0 +1,20 @@
+name: Build and Deploy
+
+on:
+  push:
+    branches:
+      - main
+
+jobs:
+  deployment:
+    name: Deploy
+    runs-on: ubuntu-latest
+    steps:
+      - name: deploy
+        uses: fifsky/ssh-action@master
+        with:
+          args: '-tt'
+          host: ${{ secrets.HOST }}
+          user: ${{ secrets.USERNAME }}
+          key: ${{ secrets.KEY }}
+          command: ~/deploy.sh ms-users
