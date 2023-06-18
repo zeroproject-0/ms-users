@@ -1,8 +1,8 @@
 import dotenv from 'dotenv';
 dotenv.config();
 
-import { connect } from './db';
-import app from './app';
+import { connect } from './src/db';
+import app from './src/app';
 
 connect();
 
