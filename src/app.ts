@@ -21,7 +21,7 @@ app.use(
 						'http://localhost:5000',
 						'http://localhost:4173',
 				  ]
-				: 'https://zeroproject.dev',
+				: 'https://chat.zeroproject.dev',
 		credentials: true,
 	})
 );
