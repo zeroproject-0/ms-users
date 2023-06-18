@@ -10,11 +10,11 @@ services:
       context: .
       dockerfile: Dockerfile
     restart: always
-    ports:
-      - 5010:3000
+    expose:
+      - 3000
     networks:
-      - ms_chat_default
+      - nginx_proxy_default
 
 networks:
-  ms_chat_default:
-    driver: bridge
+  nginx_proxy_default:
+    external: true
