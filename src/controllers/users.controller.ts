@@ -4,10 +4,17 @@ import jwt from 'jsonwebtoken';
 // import { Prisma } from '../db';
 import { encryptPassword, validateJson } from '../libs/validate';
 import { User } from '../models/User.model';
+import { sendLog } from '../libs/logs';
 
 export const getAllUsers = async (req: Request, res: Response) => {
 	try {
 		const users = await User.find({}).populate('contacts').exec();
+		sendLog({
+			metodo: 'GET',
+			servicio: 'users',
+			peticion: 'frontend',
+			respuesta: 'Usuarios obtenidos',
+		});
 		return res.status(200).json({ message: 'Usuarios obtenidos', data: users });
 	} catch (error) {
 		console.log(error);
@@ -82,6 +89,13 @@ export const createUser = async (req: Request, res: Response) => {
 			{ expiresIn: 60 * 60 * 24 }
 		);
 
+		sendLog({
+			metodo: 'POST',
+			servicio: 'users',
+			peticion: 'frontend',
+			respuesta: 'Usuario creado',
+		});
+
 		res
 			.status(200)
 			.cookie('token', token, { maxAge: 60 * 60 * 24 })
@@ -111,6 +125,13 @@ export const addContact = async (req: Request, res: Response) => {
 		await user.save();
 		user = await user.populate('contacts');
 		await contact.save();
+
+		sendLog({
+			metodo: 'POST',
+			servicio: 'users/addContact',
+			peticion: 'frontend',
+			respuesta: 'Contacto agregado',
+		});
 
 		res.json({ message: 'Contacto agregado', data: user });
 	} catch (error) {
