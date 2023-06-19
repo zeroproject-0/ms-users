@@ -79,7 +79,7 @@ export const createUser = async (req: Request, res: Response) => {
 	user.password = await encryptPassword(user.password);
 
 	try {
-		const newUser = await (await User.create(user)).save();
+		const newUser: any = await (await User.create(user)).save();
 		if (newUser === null)
 			return res.status(500).json({ message: 'Error al crear el usuario' });
 
@@ -100,7 +100,7 @@ export const createUser = async (req: Request, res: Response) => {
 			.status(200)
 			.cookie('token', token, { maxAge: 60 * 60 * 24 })
 			.header('auth-token', token)
-			.json({ message: 'Usuario creado', data: newUser });
+			.json({ message: 'Usuario creado', data: { user: newUser, token } });
 	} catch (error) {
 		console.log(error);
 		return res.status(500).json({ message: 'Error al crear el usuario' });
