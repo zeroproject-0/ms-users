@@ -14,7 +14,9 @@ export const login = async (req: Request, res: Response) => {
 			.populate('contacts')
 			.exec();
 		if (user === null)
-			return res.status(404).json({ message: 'Usuario no encontrado' });
+			return res
+				.status(404)
+				.json({ message: 'Usuario o contraseña incorrecto' });
 
 		const { password, ...userToSend } = user!.toObject();
 		const isCorrectPassword = await verifyPassword(
@@ -23,7 +25,9 @@ export const login = async (req: Request, res: Response) => {
 		);
 
 		if (!isCorrectPassword)
-			return res.status(401).json({ message: 'Contraseña incorrecta' });
+			return res
+				.status(401)
+				.json({ message: 'Usuario o contraseña incorrecto' });
 
 		const token: string = jwt.sign(
 			{ _id: user.id },

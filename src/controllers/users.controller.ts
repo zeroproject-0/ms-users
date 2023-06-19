@@ -98,12 +98,19 @@ export const addContact = async (req: Request, res: Response) => {
 	const { contactID } = req.body;
 
 	try {
-		const user = await User.findById(id).exec();
+		let user = await User.findById(id).exec();
 		if (!user)
 			return res.status(404).json({ message: 'Usuario no encontrado' });
 
+		const contact = await User.findById(contactID).exec();
+		if (!contact)
+			return res.status(404).json({ message: 'Contacto no encontrado' });
+
 		user.contacts.push(contactID);
+		contact.contacts.push(id as any);
 		await user.save();
+		user = await user.populate('contacts');
+		await contact.save();
 
 		res.json({ message: 'Contacto agregado', data: user });
 	} catch (error) {
